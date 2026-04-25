@@ -1,0 +1,14 @@
+# This patch file is applied by kustomize to allow us to update simple options
+# without re-writing the deployment file
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: wordpress-ingressroute-secure
+spec:
+  tls:
+    # TODO: We'd need this to be created by PKI in order to use it
+    # So the below line is commented out for now...
+    #
+    # secretName: wordpress-tls-secret
+    domains:
+    - main: ${DOMAIN}

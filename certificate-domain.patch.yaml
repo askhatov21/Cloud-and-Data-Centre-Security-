@@ -1,0 +1,10 @@
+# This patch file is applied by kustomize to allow us to update simple options
+# without re-writing the deployment file
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wordpress-tls-cert
+spec:
+  commonName: b1099cba.k3s.bcyber.online
+  dnsNames:
+    - b1099cba-cp2422-2025-sg-tr2-amir-askhatov.k3s.bcyber.online
