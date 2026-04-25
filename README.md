@@ -60,16 +60,7 @@ Managed manifests, patches, TLS certificates, WAF rules (.htaccess via ConfigMap
 Stack
 ToolPurposeKubernetes (K3s)Container orchestrationGitLab CI/CDAutomated pipelineDockerContainerizationTrivyContainer vulnerability scanning (SAST)OWASP ZAPDynamic application security testing (DAST)testssl.shTLS/HTTPS security assessmentKustomizeKubernetes manifest managementAzure CloudCloud environment review
 
-Repository Contents
-├── .gitlab-ci.yml              # Full CI/CD pipeline configuration
-├── kubernetes/
-│   ├── wordpress.yaml          # WordPress deployment manifest
-│   ├── traefik-tls.yaml        # TLS ingress configuration
-│   ├── pki.yaml                # PKI/certificate setup
-│   ├── kustomization.yaml      # Kustomize configuration
-│   └── patches/                # Environment-specific patches
-├── Dockerfile                  # WordPress container definition
-└── README.md
+
 
 Key Learnings
 
