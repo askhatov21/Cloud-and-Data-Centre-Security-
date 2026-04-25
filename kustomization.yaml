@@ -1,0 +1,22 @@
+resources:
+  - wordpress.yaml
+  - htaccess-configmap.yaml
+  - traefik-tls.yaml
+  - pki.yaml
+  - certificate.yaml
+patches:
+  - path: wordpress-config.patch.yaml
+    target:
+      kind: Deployment
+      name: wordpress
+  - path: wordpress-route.patch.yaml
+    target:
+      kind: IngressRoute
+  - path: wordpress-tls.patch.yaml
+    target:
+      kind: IngressRoute
+      name: wordpress-ingressroute-secure
+  - path: certificate-domain.patch.yaml
+    target:
+      kind: Certificate
+      name: wordpress-tls-cert

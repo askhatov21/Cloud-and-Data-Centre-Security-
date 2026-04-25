@@ -1,0 +1,18 @@
+- op: replace
+  path: /spec/template/spec/containers/0/image
+  value: registry.gitlab.com/it-at-jcu/jcus-projects/cp2422-cloud-and-datacenter-security/2025-sg-tr2/amir.askhatov/wordpress-static:6.3.0
+- op: add
+  path: /spec/template/spec/containers/0/env/0
+  value:
+    name: WORDPRESS_DB_PASSWORD
+    value: "9=edyfvWhzUuxyKv"
+- op: add
+  path: /spec/template/spec/containers/0/env/0
+  value:
+    name: WORDPRESS_DB_USER
+    value: b1099cba-cp2422-2025-sg-tr2-amir-askhatov
+- op: add
+  path: /spec/template/spec/containers/0/env/0
+  value:
+    name: WORDPRESS_DB_NAME
+    value: b1099cba-cp2422-2025-sg-tr2-amir-askhatov # DB name same as DB username

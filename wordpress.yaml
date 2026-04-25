@@ -1,0 +1,139 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: wordpress-ingressroute-secure
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - kind: Rule
+    match: # Defined in route.patch
+    services:
+    - kind: Service
+      name: wordpress
+      port: 8080
+  tls:
+    options:
+      name: tlsoptions
+    domains: # Defined in tls.patch
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: wordpress-ingressroute
+spec:
+  entryPoints:
+  - web
+  routes:
+  - kind: Rule
+    match: # Defined in route.patch
+    services:
+    - kind: Service
+      name: wordpress
+      port: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wordpress
+  labels:
+    app: wordpress
+spec:
+  ports:
+    - port: 8080
+      targetPort: 80
+  selector:
+    app: wordpress
+    tier: frontend
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: wp-pv-claim
+  labels:
+    app: wordpress
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wordpress
+  labels:
+    app: wordpress
+spec:
+  selector:
+    matchLabels:
+      app: wordpress
+      tier: frontend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: wordpress
+        tier: frontend
+    spec:
+      imagePullSecrets:
+      # We need to know how to login to GitLab to get this image
+      # A secret with this name is put into your K8S namespace for you
+      # You just have to refer to it.
+      # The secret is based on a deploy token that was also automatically
+      # created for you
+      - name: glreg
+      containers:
+      - name: wordpress
+        image: wordpress:latest # Defined in config.patch
+        env: # Additional environment variables defined in config.patch
+        - name: WORDPRESS_DB_HOST
+          value: mariadb.mariadb
+        # Try to come up with something that will not redirect between hostnames/IPs. Not good in practice, but useful for educational purposes.
+        - name: WORDPRESS_CONFIG_EXTRA
+          value: |
+                if (isset($_SERVER['HTTP_HOST'])) {
+                  $proto = 'http';
+                  if (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
+                    $proto = $_SERVER['HTTP_X_FORWARDED_PROTO'];
+                  }
+                  define('WP_HOME', $proto . '://' . $_SERVER['HTTP_HOST']);
+                  define('WP_SITEURL', $proto . '://' . $_SERVER['HTTP_HOST']);
+                } else {
+                  define('WP_HOME', 'http://wordpress:8080');
+                  define('WP_SITEURL', 'http://wordpress:8080');
+                }
+                // Auto update is disabled because we manage versions via containers, statically
+                define( 'WP_AUTO_UPDATE_CORE', false );
+        ports:
+        - containerPort: 80
+          name: wordpress
+        volumeMounts:
+        - name: wordpress-persistent-storage
+          mountPath: /var/www/html
+        - name: htaccess-volume
+          mountPath: /usr/www/html/.htaccess
+          subPath: .htaccess
+        - name: tmp
+          mountPath: /tmp
+        - name: run
+          mountPath: /run
+        securityContext:
+          readOnlyRootFilesystem: true
+      volumes:
+      - name: wordpress-persistent-storage
+        persistentVolumeClaim:
+          claimName: wp-pv-claim
+      - name: htaccess-volume
+        configMap:
+          name: htaccess-config
+      - name: tmp
+        emptyDir:
+          medium: Memory
+      - name: run
+        emptyDir:
+          medium: Memory

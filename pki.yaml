@@ -1,0 +1,35 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: selfsigned-issuer
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: cp2422-ca
+spec:
+  isCA: true
+  commonName: cp2422-ca
+  secretName: cp2422-root-secret
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  issuerRef:
+    name: selfsigned-issuer
+    kind: Issuer
+    group: cert-manager.io
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: cp2422-ca-issuer
+spec:
+  ca:
+    secretName: cp2422-root-secret
+    # Fake OCSP server. It's good that the field will be in certs, but it won't be _useful_ to visit
+    # We can't use a real one in this assignment, so this will have to do.
+    ocspServers:
+    - http://example.org
+  

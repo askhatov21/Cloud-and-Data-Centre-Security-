@@ -1,0 +1,7 @@
+apiVersion: traefik.io/v1alpha1
+kind: TLSOption
+metadata:
+  name: tlsoptions
+spec:
+  maxVersion: VersionTLS12
+  minVersion: VersionTLS10
